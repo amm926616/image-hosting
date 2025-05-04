@@ -1,4 +1,5 @@
 import os
+import re
 from django.http.response import JsonResponse
 from django.shortcuts import render
 from django.conf import settings
@@ -21,7 +22,7 @@ def get_collections(request):
 
     for root, dirs, files in os.walk(media_root):
         # Skip hidden directories
-        # dirs[:] = [d for d in dirs if not d.startswith('.')]
+        dirs[:] = [d for d in dirs if not d.startswith('.')]
 
         relative_folder = os.path.relpath(root, media_root)
         if relative_folder.startswith('.'):
@@ -97,7 +98,7 @@ def get_image_links(request, collection_path):
             image_urls.append(image_url)
 
     # Sort images naturally (you might want to customize this)
-    image_urls.sort()
+    image_urls.sort(key=natural_key)
 
     # Paginate results
     paginator = Paginator(image_urls, per_page)
@@ -113,3 +114,10 @@ def get_image_links(request, collection_path):
         'current_page': page.number,
         'total_pages': paginator.num_pages
     })
+
+# to fix sorting problem
+def natural_key(url):
+    # Extract the last numeric group in the filename
+    filename = os.path.basename(url)
+    numbers = re.findall(r'\d+', filename)
+    return [int(num) for num in numbers] if numbers else [0]

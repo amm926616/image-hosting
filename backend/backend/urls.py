@@ -20,8 +20,10 @@ from django.urls import path
 from django.urls.conf import include
 from django.conf.urls.static import static
 from django.conf import settings
+from images.views import home
 
 urlpatterns = [
+    path('', home, name='home'),  # Add this line for the root URL
     path('show/images/', include('images.urls')),
     path('admin/', admin.site.urls),
 ]

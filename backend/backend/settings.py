@@ -16,7 +16,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 MEDIA_URL = '/images/' #
-MEDIA_ROOT = "/home/aiden178/Pictures/"
+MEDIA_ROOT = "/home/aiden178/Pictures/.metart/"
 # MEDIA_ROOT = os.path.join(BASE_DIR, "backend", "media")
 
 # Quick-start development settings - unsuitable for production

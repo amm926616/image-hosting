@@ -64,7 +64,7 @@ function CollectionsPage() {
           return (
             <CollectionCard
               key={folderName}
-              title={folderName.replace(/_/g, ' ')}
+              title={folderName}
               count={count}
               thumbnail={thumbnail}
             />
