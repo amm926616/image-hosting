@@ -77,7 +77,7 @@ def get_image_links(request, collection_path):
     collection_full_path = os.path.normpath(os.path.join(settings.MEDIA_ROOT, collection_path))
 
     # Security check to prevent directory traversal
-    if not collection_full_path.startswith(settings.MEDIA_ROOT):
+    if not str(collection_full_path).startswith(str(settings.MEDIA_ROOT)):
         return JsonResponse({'error': 'Invalid collection path'}, status=400)
 
     if not os.path.isdir(collection_full_path):

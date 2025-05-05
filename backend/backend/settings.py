@@ -11,13 +11,32 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import configparser
+import os
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-MEDIA_URL = '/images/' #
-MEDIA_ROOT = "/home/aiden178/Pictures/.metart/"
-# MEDIA_ROOT = os.path.join(BASE_DIR, "backend", "media")
+# Initialize config parser
+config = configparser.ConfigParser()
+
+# Try to read config file
+config_path = BASE_DIR / 'config.ini'
+if not config_path.exists():
+    raise FileNotFoundError(f"Config file not found at {config_path}")
+
+config.read(config_path)
+
+# Get media settings with error handling
+try:
+    MEDIA_URL = config.get('media', 'media_url')
+    MEDIA_ROOT = Path(config.get('media', 'media_root'))
+except configparser.NoSectionError:
+    raise ValueError("The [media] section is missing in config.ini")
+except configparser.NoOptionError as e:
+    raise ValueError(f"Missing required setting in config.ini: {e}")
+
+# Ensure MEDIA_ROOT exists
+MEDIA_ROOT.mkdir(parents=True, exist_ok=True)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -55,6 +74,7 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
+    "http://localhost:4173",
     "http://localhost:5173",
     "http://192.168.242.232:5173"
 ]
@@ -137,4 +157,4 @@ CORS_ALLOW_HEADERS = [
     "content-type",
     "authorization"
 ]
-CORS_ALLOW_METHODS = ["GET"]
+CORS_ALLOW_METHODS = ["GET", "POST"]

@@ -52,14 +52,14 @@ function ImagesPage() {
   return (
     <div className="container px-4 py-8 mx-auto max-w-7xl">
       <h1 className="mb-8 text-3xl font-bold text-center text-gray-800">Image Gallery</h1>
-      
+
       {Object.entries(imageData).map(([folderName, imageUrls]) => {
         if (folderName.startsWith('.') || imageUrls.length === 0) return null;
-        
+
         return (
           <div key={folderName} className="mb-12">
             <h2 className="mb-6 text-2xl font-semibold text-gray-700 border-b border-gray-200 pb-2">
-              {folderName.replace(/_/g, ' ')}
+              {folderName}
             </h2>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {imageUrls.map((imageUrl, index) => (
