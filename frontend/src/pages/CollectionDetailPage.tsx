@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import ImageCard from "../components/ImageCard";
 import LoadingSpinner from "../components/LoadingSpinner";
@@ -16,6 +16,8 @@ function CollectionDetailPage() {
   const navigate = useNavigate();
   const [isViewerOpen, setIsViewerOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isSlideshowActive, setIsSlideshowActive] = useState(false);
+  const slideshowIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (!collectionName) {
@@ -73,18 +75,56 @@ function CollectionDetailPage() {
   }, [imageUrls, currentImageIndex]);
 
   useEffect(() => {
-    // Prevent background scrolling when the viewer is open
     if (isViewerOpen) {
       document.body.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = ''; // Re-enable scrolling
+      document.body.style.overflow = '';
     }
 
-    // Clean up the effect when the component unmounts
     return () => {
       document.body.style.overflow = '';
     };
   }, [isViewerOpen]);
+
+  const startSlideshow = () => {
+    setIsSlideshowActive(true);
+    if (slideshowIntervalRef.current) {
+      clearInterval(slideshowIntervalRef.current);
+    }
+    slideshowIntervalRef.current = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % imageUrls.length);
+    }, 1500);
+  };
+
+  const stopSlideshow = () => {
+    setIsSlideshowActive(false);
+    if (slideshowIntervalRef.current) {
+      clearInterval(slideshowIntervalRef.current);
+      slideshowIntervalRef.current = null;
+    }
+  };
+
+  const toggleSlideshow = () => {
+    if (isSlideshowActive) {
+      stopSlideshow();
+    } else {
+      startSlideshow();
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (slideshowIntervalRef.current) {
+        clearInterval(slideshowIntervalRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isViewerOpen && isSlideshowActive) {
+      stopSlideshow();
+    }
+  }, [isViewerOpen, isSlideshowActive]);
 
   const loadMore = () => {
     setPage((prev) => prev + 1);
@@ -156,14 +196,33 @@ function CollectionDetailPage() {
               ]
             }
             onCloseRequest={() => setIsViewerOpen(false)}
-            onMovePrevRequest={() =>
+            onMovePrevRequest={() => {
+              stopSlideshow();
               setCurrentImageIndex(
                 (currentImageIndex + imageUrls.length - 1) % imageUrls.length
-              )
-            }
-            onMoveNextRequest={() =>
-              setCurrentImageIndex((currentImageIndex + 1) % imageUrls.length)
-            }
+              );
+            }}
+            onMoveNextRequest={() => {
+              stopSlideshow();
+              setCurrentImageIndex((currentImageIndex + 1) % imageUrls.length);
+            }}
+            toolbarButtons={[
+              <button
+                key="slideshow"
+                className="lightbox-toolbar-button"
+                onClick={toggleSlideshow}
+                style={{
+                  fontSize: '16px',
+                  padding: '5px 10px',
+                  background: isSlideshowActive ? '#f0f0f0' : 'transparent',
+                  border: '1px solid #ccc',
+                  borderRadius: '4px',
+                  marginRight: '10px'
+                }}
+              >
+                {isSlideshowActive ? '⏸ Pause' : '▶ Slideshow'}
+              </button>
+            ]}
           />
         )}
     </div>
